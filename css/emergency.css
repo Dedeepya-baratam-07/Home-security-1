@@ -1,0 +1,166 @@
+/* ==========================================================================
+   Home Security App — Emergency & SOS Hub Styles
+   ========================================================================== */
+
+.sos-hero-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sos-pulse-ring {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0) 70%);
+  animation: pulseGlowAlert 2s infinite ease-out;
+  pointer-events: none;
+}
+
+.sos-main-button {
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: 8px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-smooth);
+  position: relative;
+  z-index: 5;
+  outline: none;
+}
+
+.sos-main-button:hover {
+  transform: scale(1.06);
+  box-shadow: 0 14px 40px rgba(239, 68, 68, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.sos-main-button:active {
+  transform: scale(0.96);
+}
+
+.sos-btn-text {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.sos-btn-sub {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.sos-warning-note {
+  margin-top: 24px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* Active Alarm Siren Banner */
+.active-alarm-banner {
+  display: none;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.25) 100%);
+  border: 2px solid var(--color-alert);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  animation: flashRed 1.5s infinite;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.active-alarm-banner.active {
+  display: flex;
+}
+
+.alarm-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.alarm-siren-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-alert);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  animation: pulseGlowAlert 1s infinite;
+}
+
+.alarm-banner-info h3 {
+  color: var(--color-alert);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.alarm-banner-info p {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+/* Responders Grid */
+.responders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.responder-card {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.responder-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.responder-info span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.responder-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

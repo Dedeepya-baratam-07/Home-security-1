@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency / SOS — Home Security Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/emergency.css">
+</head>
+<body>
+
+  <div class="sidebar-overlay"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div class="brand-info">
+          <h2>HomeGuard</h2>
+          <span>Security Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Monitoring</div>
+        <a href="dashboard.html" class="nav-item">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="alerts.html" class="nav-item">
+          <i data-lucide="bell"></i>
+          <span>Security Alerts</span>
+          <span class="nav-item-badge" style="display: none;">0</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <i data-lucide="history"></i>
+          <span>Security History</span>
+        </a>
+
+        <div class="nav-section-title">Emergency Response</div>
+        <a href="emergency.html" class="nav-item active sos-item">
+          <i data-lucide="alert-octagon"></i>
+          <span>Emergency / SOS</span>
+        </a>
+        <a href="contacts.html" class="nav-item">
+          <i data-lucide="users"></i>
+          <span>Emergency Contacts</span>
+        </a>
+
+        <div class="nav-section-title">Management</div>
+        <a href="profile.html" class="nav-item">
+          <i data-lucide="user"></i>
+          <span>Resident Profile</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="javascript:void(0)" class="nav-item logout-trigger-btn" style="color: var(--color-alert);">
+          <i data-lucide="log-out"></i>
+          <span>Log Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Header Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" aria-label="Toggle navigation menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="header-status-pill status-pill-safe">
+            <span class="status-dot"></span>
+            <span>System Safe</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-clock">
+            <i data-lucide="clock"></i>
+            <span>--:--:--</span>
+          </div>
+
+          <button class="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+            <i data-lucide="sun"></i>
+          </button>
+
+          <a href="profile.html" class="user-profile-summary">
+            <div class="user-avatar">AM</div>
+            <div class="user-meta">
+              <span class="user-name">Alex Mercer</span>
+              <span class="user-role">Primary Resident</span>
+            </div>
+          </a>
+        </div>
+      </header>
+
+      <!-- Page Content Viewport -->
+      <div class="app-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Emergency & SOS Command Hub</h1>
+            <p>Simulate instant emergency distress triggers and dispatch priority protocols</p>
+          </div>
+        </div>
+
+        <!-- Active Siren Banner (Displayed when SOS is Active) -->
+        <div id="active-alarm-banner" class="active-alarm-banner">
+          <div class="alarm-banner-left">
+            <div class="alarm-siren-icon">
+              <i data-lucide="siren"></i>
+            </div>
+            <div class="alarm-banner-info">
+              <h3>CRITICAL EMERGENCY SOS ACTIVE</h3>
+              <p id="alarm-banner-details">System in high-priority simulated breach status.</p>
+            </div>
+          </div>
+          <button class="btn btn-success btn-lg" id="disarm-alarm-btn">
+            <i data-lucide="shield-check"></i> Disarm & Stand Down Alarm
+          </button>
+        </div>
+
+        <!-- Large Centered SOS Trigger Hero -->
+        <div class="sos-hero-container">
+          <div class="sos-pulse-ring"></div>
+          <button id="main-sos-button" class="sos-main-button" aria-label="Trigger Emergency SOS">
+            <span class="sos-btn-text">SOS</span>
+            <span class="sos-btn-sub">Emergency</span>
+          </button>
+
+          <p class="sos-warning-note">
+            <i data-lucide="info" style="width: 15px; height: 15px; vertical-align: middle;"></i>
+            <strong>Simulation Safety Notice:</strong> Pressing this button initiates a software simulation for demonstration purposes. It does <u>not</u> dial actual 911 or real emergency authorities.
+          </p>
+        </div>
+
+        <!-- Two Column Section: Emergency Contacts Quick Dispatch & SOS Log -->
+        <div class="dashboard-main-grid">
+          <!-- Emergency Responders List -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i data-lucide="phone-forwarded" style="color: var(--color-safe);"></i>
+                <span>Emergency Responders</span>
+              </h3>
+              <a href="contacts.html" class="btn btn-ghost btn-sm">Manage Contacts</a>
+            </div>
+            <div id="emergency-responders-list" class="responders-grid">
+              <!-- Dynamically Populated by emergency.js -->
+            </div>
+          </div>
+
+          <!-- SOS Historical Dispatch Log -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i data-lucide="history" style="color: var(--color-warning);"></i>
+                <span>Recent SOS Activations</span>
+              </h3>
+            </div>
+            <div id="sos-history-list" class="alert-feed-list">
+              <!-- Dynamically Populated by emergency.js -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: SOS Confirmation (2-Step Safety) -->
+  <div id="sos-confirm-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header" style="border-bottom-color: rgba(239, 68, 68, 0.4);">
+        <div class="modal-title" style="color: var(--color-alert);">
+          <i data-lucide="alert-octagon"></i>
+          <span>Confirm Emergency SOS</span>
+        </div>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">&times;</button>
+      </div>
+      <form id="sos-confirm-form">
+        <div class="modal-body">
+          <p style="margin-bottom: 16px; font-size: 0.95rem; color: var(--text-primary);">
+            Are you sure you want to trigger the simulated <strong>Critical Emergency SOS Alarm</strong>?
+          </p>
+          <div class="form-group">
+            <label for="sos-reason-input" class="form-label">Optional Distress Reason</label>
+            <input type="text" id="sos-reason-input" class="form-control" placeholder="e.g. Unidentified intruder at back door" value="Simulated Immediate Distress Call">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-danger btn-lg">
+            <i data-lucide="zap"></i> Confirm & Activate SOS
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/emergency.js"></script>
+</body>
+</html>

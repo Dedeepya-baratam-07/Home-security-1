@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Alerts — Home Security Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/alerts.css">
+</head>
+<body>
+
+  <div class="sidebar-overlay"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div class="brand-info">
+          <h2>HomeGuard</h2>
+          <span>Security Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Monitoring</div>
+        <a href="dashboard.html" class="nav-item">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="alerts.html" class="nav-item active">
+          <i data-lucide="bell"></i>
+          <span>Security Alerts</span>
+          <span class="nav-item-badge" style="display: none;">0</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <i data-lucide="history"></i>
+          <span>Security History</span>
+        </a>
+
+        <div class="nav-section-title">Emergency Response</div>
+        <a href="emergency.html" class="nav-item sos-item">
+          <i data-lucide="alert-octagon"></i>
+          <span>Emergency / SOS</span>
+        </a>
+        <a href="contacts.html" class="nav-item">
+          <i data-lucide="users"></i>
+          <span>Emergency Contacts</span>
+        </a>
+
+        <div class="nav-section-title">Management</div>
+        <a href="profile.html" class="nav-item">
+          <i data-lucide="user"></i>
+          <span>Resident Profile</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="javascript:void(0)" class="nav-item logout-trigger-btn" style="color: var(--color-alert);">
+          <i data-lucide="log-out"></i>
+          <span>Log Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Header Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" aria-label="Toggle navigation menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="header-status-pill status-pill-safe">
+            <span class="status-dot"></span>
+            <span>System Safe</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-clock">
+            <i data-lucide="clock"></i>
+            <span>--:--:--</span>
+          </div>
+
+          <button class="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+            <i data-lucide="sun"></i>
+          </button>
+
+          <a href="profile.html" class="user-profile-summary">
+            <div class="user-avatar">AM</div>
+            <div class="user-meta">
+              <span class="user-name">Alex Mercer</span>
+              <span class="user-role">Primary Resident</span>
+            </div>
+          </a>
+        </div>
+      </header>
+
+      <!-- Page Content Viewport -->
+      <div class="app-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Security Alerts Hub</h1>
+            <p>Monitor, simulate, and resolve sensor telemetry across all house zones</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" id="open-simulate-modal-btn">
+              <i data-lucide="plus-circle"></i> Simulate New Alert
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="filter-toolbar">
+          <div class="filter-left-group">
+            <div class="filter-search-box">
+              <i data-lucide="search" class="filter-search-icon"></i>
+              <input type="text" id="alerts-search-input" class="form-control" placeholder="Search by alert ID, type, or zone...">
+            </div>
+
+            <div class="filter-tabs">
+              <button class="filter-tab-btn active" data-filter="all">All</button>
+              <button class="filter-tab-btn" data-filter="active">Active</button>
+              <button class="filter-tab-btn" data-filter="resolved">Resolved</button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <select id="alerts-severity-filter" class="filter-select">
+              <option value="all">All Severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <span id="alerts-total-count" class="badge badge-info" style="font-size: 0.82rem;">0 Alerts</span>
+          </div>
+        </div>
+
+        <!-- Alerts Cards Grid -->
+        <div id="alerts-grid-container" class="alerts-grid">
+          <!-- Dynamically Populated by alerts.js -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Simulate New Security Alert -->
+  <div id="simulate-alert-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i data-lucide="shield-alert" style="color: var(--color-alert);"></i>
+          <span>Simulate Security Event</span>
+        </div>
+        <button class="modal-close-btn" data-modal-close aria-label="Close modal">&times;</button>
+      </div>
+      <form id="simulate-alert-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="sim-event-type" class="form-label">Event Type</label>
+            <select id="sim-event-type" class="form-control" required>
+              <option value="Motion Detected">Motion Detected</option>
+              <option value="Door Opened">Door Opened</option>
+              <option value="Window Opened">Window Opened</option>
+              <option value="Suspicious Activity">Suspicious Activity</option>
+              <option value="Smoke Detected">Smoke Detected</option>
+              <option value="Glass Break Detected">Glass Break Detected</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sim-event-location" class="form-label">Location / Zone</label>
+            <input type="text" id="sim-event-location" class="form-control" list="location-suggestions" placeholder="e.g. Living Room, Backyard" required value="Living Room">
+            <datalist id="location-suggestions">
+              <option value="Living Room"></option>
+              <option value="Main Entrance"></option>
+              <option value="Master Bedroom"></option>
+              <option value="Kitchen"></option>
+              <option value="Backyard"></option>
+              <option value="Garage"></option>
+              <option value="Balcony"></option>
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="sim-event-severity" class="form-label">Severity Level</label>
+            <select id="sim-event-severity" class="form-control" required>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sim-event-notes" class="form-label">Description / Sensor Log Notes (Optional)</label>
+            <textarea id="sim-event-notes" class="form-control" rows="3" placeholder="Additional details regarding this simulation event..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-danger">
+            <i data-lucide="zap"></i> Trigger Simulated Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/alerts.js"></script>
+</body>
+</html>

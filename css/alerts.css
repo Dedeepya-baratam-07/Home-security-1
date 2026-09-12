@@ -1,0 +1,219 @@
+/* ==========================================================================
+   Home Security App — Security Alerts & History Styles
+   ========================================================================== */
+
+/* Filter & Search Bar */
+.filter-toolbar {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-left-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.filter-search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.filter-search-box input {
+  padding-left: 38px;
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-input);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.filter-tab-btn {
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-tab-btn.active {
+  background-color: var(--color-info);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.filter-select {
+  padding: 8px 14px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Alerts Card Grid */
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.alert-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: all var(--transition-fast);
+}
+
+.alert-card-active {
+  border-left: 5px solid var(--color-alert);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15);
+}
+
+.alert-card-resolved {
+  border-left: 5px solid var(--color-safe);
+  opacity: 0.9;
+}
+
+.alert-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.alert-type-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alert-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alert-card-active .alert-card-icon {
+  background-color: var(--color-alert-bg);
+  color: var(--color-alert);
+}
+
+.alert-card-resolved .alert-card-icon {
+  background-color: var(--color-safe-bg);
+  color: var(--color-safe);
+}
+
+.alert-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.alert-id-tag {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.alert-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.alert-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.alert-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.detail-label {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-label i {
+  width: 14px;
+  height: 14px;
+}
+
+.detail-value {
+  color: var(--text-primary);
+}
+
+.alert-notes-text {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-input);
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.alert-card-footer {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.resolved-status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-safe);
+  font-weight: 500;
+  padding: 6px 0;
+}

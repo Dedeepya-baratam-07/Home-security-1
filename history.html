@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security History — Home Security Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/alerts.css">
+</head>
+<body>
+
+  <div class="sidebar-overlay"></div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <div class="brand-info">
+          <h2>HomeGuard</h2>
+          <span>Security Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Monitoring</div>
+        <a href="dashboard.html" class="nav-item">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="alerts.html" class="nav-item">
+          <i data-lucide="bell"></i>
+          <span>Security Alerts</span>
+          <span class="nav-item-badge" style="display: none;">0</span>
+        </a>
+        <a href="history.html" class="nav-item active">
+          <i data-lucide="history"></i>
+          <span>Security History</span>
+        </a>
+
+        <div class="nav-section-title">Emergency Response</div>
+        <a href="emergency.html" class="nav-item sos-item">
+          <i data-lucide="alert-octagon"></i>
+          <span>Emergency / SOS</span>
+        </a>
+        <a href="contacts.html" class="nav-item">
+          <i data-lucide="users"></i>
+          <span>Emergency Contacts</span>
+        </a>
+
+        <div class="nav-section-title">Management</div>
+        <a href="profile.html" class="nav-item">
+          <i data-lucide="user"></i>
+          <span>Resident Profile</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="javascript:void(0)" class="nav-item logout-trigger-btn" style="color: var(--color-alert);">
+          <i data-lucide="log-out"></i>
+          <span>Log Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Header Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" aria-label="Toggle navigation menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="header-status-pill status-pill-safe">
+            <span class="status-dot"></span>
+            <span>System Safe</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-clock">
+            <i data-lucide="clock"></i>
+            <span>--:--:--</span>
+          </div>
+
+          <button class="theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+            <i data-lucide="sun"></i>
+          </button>
+
+          <a href="profile.html" class="user-profile-summary">
+            <div class="user-avatar">AM</div>
+            <div class="user-meta">
+              <span class="user-name">Alex Mercer</span>
+              <span class="user-role">Primary Resident</span>
+            </div>
+          </a>
+        </div>
+      </header>
+
+      <!-- Page Content Viewport -->
+      <div class="app-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Security Audit History</h1>
+            <p>Permanent, chronological ledger of all home events, triggers, and resolutions</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm" id="export-history-btn">
+              <i data-lucide="download"></i> Export JSON
+            </button>
+            <button class="btn btn-danger btn-sm" id="clear-history-btn">
+              <i data-lucide="trash-2"></i> Clear History
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Toolbar -->
+        <div class="filter-toolbar">
+          <div class="filter-left-group">
+            <div class="filter-search-box">
+              <i data-lucide="search" class="filter-search-icon"></i>
+              <input type="text" id="history-search-input" class="form-control" placeholder="Search history by event, location, log ID...">
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <select id="history-severity-filter" class="filter-select">
+              <option value="all">All Severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+
+            <select id="history-status-filter" class="filter-select">
+              <option value="all">All Statuses</option>
+              <option value="resolved">Resolved</option>
+              <option value="active">Active</option>
+            </select>
+
+            <span id="history-total-count" class="badge badge-info" style="font-size: 0.82rem;">0 Events</span>
+          </div>
+        </div>
+
+        <!-- History Log Table -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event & ID</th>
+                  <th>Location</th>
+                  <th>Date & Time</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                  <th>Remarks / Log Details</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <!-- Dynamically Populated by history.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>
