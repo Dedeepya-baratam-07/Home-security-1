@@ -10,6 +10,7 @@ const SettingsPage = {
     this.bindSettingsForm();
     this.bindPasswordForm();
     this.bindDemoReset();
+    this.bindSoundTest();
   },
 
   populateSettings() {
@@ -19,6 +20,16 @@ const SettingsPage = {
     document.getElementById('toggle-email-alerts').checked = settings.emailNotifications === true;
     document.getElementById('toggle-sound-alerts').checked = settings.soundAlerts !== false;
     document.getElementById('setting-theme-select').value = settings.theme || 'dark';
+  },
+
+  bindSoundTest() {
+    const testBtn = document.getElementById('test-alarm-sound-btn');
+    if (testBtn) {
+      testBtn.addEventListener('click', () => {
+        UI.playSound('alert');
+        UI.showToast('🚨 Playing test security alarm siren...', 'error', 2500);
+      });
+    }
   },
 
   bindSettingsForm() {

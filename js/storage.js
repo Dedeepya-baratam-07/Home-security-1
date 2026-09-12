@@ -249,6 +249,11 @@ class SecurityStorage {
     alerts.unshift(newAlert);
     this._setItem(STORAGE_KEYS.ALERTS, alerts);
 
+    // Audio Alert Sound
+    if (window.UI && typeof window.UI.playSound === 'function') {
+      window.UI.playSound(newAlert.severity === 'Low' ? 'warning' : 'alert');
+    }
+
     // Also permanently log to History
     this.addHistoryEvent({
       id: 'HIST-' + Math.floor(10000 + Math.random() * 90000),
@@ -279,6 +284,11 @@ class SecurityStorage {
     alerts[alertIndex].status = 'Resolved';
     alerts[alertIndex].resolvedAt = now.getTime();
     this._setItem(STORAGE_KEYS.ALERTS, alerts);
+
+    // Audio Resolution Chime
+    if (window.UI && typeof window.UI.playSound === 'function') {
+      window.UI.playSound('safe');
+    }
 
     // Update corresponding entry in history
     const history = this.getHistory();

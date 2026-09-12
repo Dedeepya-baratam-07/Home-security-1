@@ -1,23 +1,33 @@
 /**
  * Home Security App — Shared UI Utilities
- * Manages toasts, theme toggles, audio feedback, modals, header clock, and navigation shell.
+ * Manages toasts, theme toggles, audio alarms, modals, header clock, and navigation shell.
  */
 
 const UI = {
+  audioCtx: null,
+  alertLoopInterval: null,
+
   /**
-   * Initializes theme, header clock, sidebar handlers, and icons
+   * Initializes theme, header clock, sidebar handlers, icons, and audio context unlocker
    */
   init() {
     this.initTheme();
     this.initClock();
     this.initSidebar();
     this.initHeaderStatus();
+    this.initAudioContext();
     this.renderIcons();
 
     // Listen to storage changes to keep header status pill in sync
     window.addEventListener('security-storage-update', () => {
       this.updateHeaderStatus();
+      this.syncAlertAudioLoop();
     });
+
+    // Initial check for active alerts on page load
+    setTimeout(() => {
+      this.syncAlertAudioLoop();
+    }, 500);
   },
 
   /**
@@ -30,51 +40,160 @@ const UI = {
   },
 
   /**
-   * Web Audio API Chime generator
+   * Gets or creates a live, running AudioContext
    */
-  playSound(type = 'safe') {
-    const settings = window.securityStorage?.getSettings();
-    if (settings && settings.soundAlerts === false) return;
-
+  getAudioContext() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-
-      if (type === 'alert' || type === 'danger' || type === 'critical') {
-        // Warning 2-tone beep
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(600, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.28);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
-      } else {
-        // Gentle success/neutral chime
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
-        gain.gain.setValueAtTime(0.1, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.26);
+      if (!this.audioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.audioCtx = new AudioCtx();
+        }
       }
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      return this.audioCtx;
     } catch (e) {
-      // Audio context might be restricted before user interaction
+      console.warn('AudioContext initialization notice:', e);
+      return null;
     }
   },
 
   /**
-   * Displays a floating toast notification
+   * Unlocks audio on any user touch/click
+   */
+  initAudioContext() {
+    const unlock = () => {
+      this.getAudioContext();
+    };
+
+    window.addEventListener('click', unlock, { passive: true });
+    window.addEventListener('keydown', unlock, { passive: true });
+    window.addEventListener('touchstart', unlock, { passive: true });
+  },
+
+  /**
+   * Plays a loud, realistic Security Alarm Siren / Chime
+   */
+  playSound(type = 'alert') {
+    const settings = window.securityStorage?.getSettings();
+    if (settings && settings.soundAlerts === false) return;
+
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      if (type === 'alert' || type === 'critical' || type === 'alarm' || type === 'error') {
+        // High-pitch dual-tone emergency security siren
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sawtooth';
+        osc2.type = 'square';
+
+        // Frequency sweep (Security alarm warble)
+        const duration = 0.65; // seconds
+        osc1.frequency.setValueAtTime(880, now); // A5
+        osc1.frequency.linearRampToValueAtTime(587.33, now + 0.18); // D5
+        osc1.frequency.linearRampToValueAtTime(987.77, now + 0.36); // B5
+        osc1.frequency.linearRampToValueAtTime(659.25, now + 0.52); // E5
+        osc1.frequency.linearRampToValueAtTime(880, now + duration);
+
+        osc2.frequency.setValueAtTime(440, now); // Sub-harmonic
+        osc2.frequency.linearRampToValueAtTime(550, now + 0.3);
+        osc2.frequency.linearRampToValueAtTime(440, now + duration);
+
+        // Punchy volume envelope
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.setValueAtTime(0.35, now + duration - 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+
+      } else if (type === 'warning') {
+        // Double warning alert beep
+        const playBeep = (time, freq) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, time);
+          gain.gain.setValueAtTime(0.28, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(time);
+          osc.stop(time + 0.19);
+        };
+
+        playBeep(now, 800);
+        playBeep(now + 0.22, 950);
+
+      } else {
+        // Uplifting Safe / Resolution chord
+        const playNote = (time, freq, dur) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, time);
+          gain.gain.setValueAtTime(0.2, time);
+          gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(time);
+          osc.stop(time + dur);
+        };
+
+        playNote(now, 523.25, 0.25);        // C5
+        playNote(now + 0.09, 659.25, 0.25); // E5
+        playNote(now + 0.18, 783.99, 0.4);  // G5
+      }
+    } catch (e) {
+      console.warn('Audio playback notice:', e);
+    }
+  },
+
+  /**
+   * Periodic reminder chime when an active alert is currently active in the house
+   */
+  syncAlertAudioLoop() {
+    if (!window.securityStorage) return;
+    const overview = window.securityStorage.getSecurityOverview();
+
+    if (overview.status === 'ALERT' && overview.activeCount > 0) {
+      if (!this.alertLoopInterval) {
+        // Play once immediately, then repeat every 7 seconds while breach is unresolved
+        this.playSound('alert');
+        this.alertLoopInterval = setInterval(() => {
+          const check = window.securityStorage.getSecurityOverview();
+          if (check.status === 'ALERT' && check.activeCount > 0) {
+            this.playSound('alert');
+          } else {
+            clearInterval(this.alertLoopInterval);
+            this.alertLoopInterval = null;
+          }
+        }, 7000);
+      }
+    } else {
+      if (this.alertLoopInterval) {
+        clearInterval(this.alertLoopInterval);
+        this.alertLoopInterval = null;
+      }
+    }
+  },
+
+  /**
+   * Displays a floating toast notification and triggers audio feedback
    * @param {string} message 
    * @param {'success'|'error'|'warning'|'info'} type 
    * @param {number} duration 
@@ -104,9 +223,12 @@ const UI = {
     container.appendChild(toast);
     this.renderIcons();
 
-    if (type === 'error' || type === 'warning') {
+    // Trigger audio feedback based on toast type
+    if (type === 'error') {
       this.playSound('alert');
-    } else {
+    } else if (type === 'warning') {
+      this.playSound('warning');
+    } else if (type === 'success') {
       this.playSound('safe');
     }
 
