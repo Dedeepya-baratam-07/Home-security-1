@@ -23,7 +23,7 @@ const SEED_DATA = {
     address: '742 Evergreen Terrace, Springfield',
     emergencyInfo: 'Blood Type: O+, Gate Access: #4821',
     profilePicture: '',
-    isAuthenticated: true
+    isAuthenticated: false
   },
   settings: {
     securityAlerts: true,
@@ -113,15 +113,9 @@ class SecurityStorage {
     if (forceReset || !localStorage.getItem(STORAGE_KEYS.SOS_EVENTS)) {
       localStorage.setItem(STORAGE_KEYS.SOS_EVENTS, JSON.stringify(SEED_DATA.sosEvents));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.USERS_DB)) {
-      localStorage.setItem(STORAGE_KEYS.USERS_DB, JSON.stringify([
-        {
-          name: 'Alex Mercer',
-          email: 'alex.mercer@homeguard.io',
-          password: 'Password123!',
-          phone: '+1 (555) 234-5678'
-        }
-      ]));
+    // Clean up any legacy password storage in localStorage
+    if (localStorage.getItem(STORAGE_KEYS.USERS_DB)) {
+      localStorage.removeItem(STORAGE_KEYS.USERS_DB);
     }
   }
 
