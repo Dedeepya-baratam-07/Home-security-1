@@ -331,6 +331,17 @@ class SecurityStorage {
     return this._getItem(STORAGE_KEYS.CONTACTS, []);
   }
 
+  setContacts(contactsArray) {
+    // Allows Firestore module to sync the authoritative contact list into the
+    // localStorage cache so dashboard stats & SOS page stay consistent.
+    try {
+      localStorage.setItem(STORAGE_KEYS.CONTACTS, JSON.stringify(contactsArray));
+      window.dispatchEvent(new CustomEvent('security-storage-update', { detail: { key: STORAGE_KEYS.CONTACTS } }));
+    } catch (e) {
+      console.error('Error syncing contacts to storage cache:', e);
+    }
+  }
+
   addContact(contact) {
     const contacts = this.getContacts();
     const newContact = {

@@ -68,3 +68,27 @@
   - [✓] 11.1 Test and verify complete Core Demo Flow (SAFE 🟢 → Simulate Motion → ALERT 🔴 → Resolve → SAFE 🟢 → Persist in History).
   - [✓] 11.2 Test and verify SOS Flow and Contacts CRUD operations.
   - [✓] 11.3 Cross-browser testing, mobile responsive verification, and automated commit to GitHub.
+
+---
+
+## Phase 2: Cloud Firestore Integration
+
+- [✓] **TASK 12 — Firebase Authentication (`auth.js`, `firebase-config.js`)**
+  - [✓] 12.1 Modular SDK v12.19.0 configuration & initialization.
+  - [✓] 12.2 Signup, login, logout, and protected route guards.
+
+- [✓] **TASK 13 — Resident Profile Cloud Firestore Integration (`profile.js`, `users/{uid}`)**
+  - [✓] 13.1 User-isolated security rules for `users/{uid}`.
+  - [✓] 13.2 Profile load & save using `getFirestore(app)` and `setDoc` merge.
+
+- [x] **TASK 14 — Emergency Contacts Firestore Integration & Functional Actions (`contacts.js`, `contacts.html`)**
+  - [x] 14.1 Deploy user-isolated Firestore security rules for `users/{uid}/contacts/{contactId}`.
+  - [x] 14.2 Convert `contacts.js` to modular ES module and initialize via `getFirestore(app)`.
+  - [x] 14.3 Real-time contact synchronization (`onSnapshot`) under `users/{uid}/contacts`.
+  - [x] 14.4 Implement Add Contact with Firestore persistence and toast notification.
+  - [x] 14.5 Implement Edit Contact targeting existing Firestore document without duplicating.
+  - [x] 14.6 Implement Delete Contact targeting specific document with confirmation prompt.
+  - [x] 14.7 Implement functional Call action (`tel:<phone>`).
+  - [x] 14.8 Implement functional Email action (`mailto:<email>`).
+  - [x] 14.9 Sync in-memory contacts with `securityStorage` for dashboard & SOS compatibility.
+  - [x] 14.10 Comprehensive end-to-end verification, automated testing & Git commit/push.

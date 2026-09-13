@@ -205,3 +205,33 @@ The code will be structured into clean, reusable vanilla JS modules:
 2. `ui.js`: Common UI utilities (toast notifications, modal open/close, theme toggling, sidebar toggle, time formatting).
 3. `auth.js`: Session management, mock login/logout, route protection (redirect to `index.html` if unauthenticated).
 4. `dashboard.js`, `alerts.js`, `history.js`, `emergency.js`, `contacts.js`, `profile.js`, `settings.js`: Page-specific controllers.
+
+---
+
+## 7. Emergency Contacts Firestore Architecture & Interaction Flow
+
+### Firestore Data Path
+`users/{uid}/contacts/{contactId}`
+
+### User & Action Flow
+```mermaid
+graph TD
+A[User opens contacts.html] --> B[Auth Resolved: currentUser.uid]
+B --> C[Firestore onSnapshot listener on users/uid/contacts]
+C --> D[Render Contact Cards in #contacts-grid]
+D --> E1[Click Call Button]
+E1 --> F1[Trigger tel:phone dialer immediately]
+D --> E2[Click Email Button]
+E2 --> F2[Trigger mailto:email composer with prefilled subject]
+D --> E3[Click Add / Edit Contact]
+E3 --> F3[Save to users/uid/contacts/contactId]
+F3 --> C
+D --> E4[Click Delete Contact]
+E4 --> F4[Confirm & deleteDoc from users/uid/contacts/contactId]
+F4 --> C
+```
+
+### Call & Email Action Design
+* **Call**: Uses `tel:<normalized_phone>` via direct link or click action, opening native device dialer without alerts or reload.
+* **Email**: Uses `mailto:<email>?subject=Home%20Security%20Emergency%20Alert&body=...`, launching OS/browser default email composer.
+

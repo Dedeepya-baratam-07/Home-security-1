@@ -176,3 +176,33 @@
 5. Status switches to Critical Alarm mode, SOS event is recorded in History, and primary emergency contacts are highlighted.
 6. User clicks "Disarm Alarm" to return to normal state.
 ```
+
+---
+
+## 4. Cloud Firestore Emergency Contacts Requirements
+
+### 4.1 Data Model (`users/{uid}/contacts/{contactId}`)
+```json
+{
+  "name": "Sarah Connor",
+  "relationship": "Spouse / Partner",
+  "phone": "+1 (555) 902-1144",
+  "email": "sarah.connor@example.com",
+  "isPrimary": true,
+  "createdAt": "SERVER_TIMESTAMP",
+  "updatedAt": "SERVER_TIMESTAMP"
+}
+```
+
+### 4.2 Security Rules
+Authenticated user-isolated access only:
+```javascript
+match /users/{uid}/contacts/{contactId} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+```
+
+### 4.3 Action Requirements
+* **Call Action**: Must trigger `tel:<phone>` using contact's actual stored phone number, without hardcoding, alert popups, or page refresh.
+* **Email Action**: Must trigger `mailto:<email>` opening the user's default email composer with alert subject pre-filled.
+* **Real-Time Synchronization**: Changes made to contacts persist in Firestore and reflect instantly in the UI.
