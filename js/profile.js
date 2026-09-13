@@ -1,19 +1,26 @@
-﻿/**
+/**
  * Home Security App — Resident Profile Controller
  * Directly integrated with Cloud Firestore under users/{uid}
  */
 
 import { 
+  app,
   auth, 
-  db, 
+  onAuthStateChanged,
+  updateProfile 
+} from './firebase-config.js';
+
+import { 
+  getFirestore, 
   doc, 
   getDoc, 
   setDoc, 
   updateDoc, 
-  serverTimestamp, 
-  updateProfile,
-  onAuthStateChanged 
-} from './firebase-config.js';
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+// Initialize Cloud Firestore using the SAME Firebase app instance
+const db = getFirestore(app);
 
 const ProfilePage = {
   currentUser: null,
@@ -71,6 +78,13 @@ const ProfilePage = {
     } catch (err) {
       console.error('Firestore Profile Load Error:', err);
 
+      // Update badge to reflect connection error
+      const badgeEl = document.getElementById('profile-badge');
+      if (badgeEl) {
+        badgeEl.className = 'badge badge-danger';
+        badgeEl.innerHTML = '<i data-lucide="alert-circle" style="width: 12px; height: 12px; vertical-align: middle;"></i> Firestore not connected';
+      }
+
       // Gracefully fall back to Firebase Auth user credentials
       const fallbackName = user.displayName || (user.email ? user.email.split('@')[0] : 'Resident');
       this.populateUI({
@@ -80,7 +94,7 @@ const ProfilePage = {
         phone: '',
         address: '',
         emergencyInfo: ''
-      }, user);
+      }, user, true);
 
       if (err.message && err.message.includes('API has not been used')) {
         UI.showToast('Please enable Cloud Firestore in your Firebase Console to sync data.', 'warning', 6000);
@@ -93,7 +107,7 @@ const ProfilePage = {
   /**
    * Populates form inputs and dynamic UI elements
    */
-  populateUI(profile, user) {
+  populateUI(profile, user, isFallback = false) {
     const name = profile.name || user.displayName || (user.email ? user.email.split('@')[0] : '');
     const email = user.email || profile.email || '';
     const phone = profile.phone || '';
@@ -138,7 +152,8 @@ const ProfilePage = {
 
     // Update Cloud Status Badge
     const badgeEl = document.getElementById('profile-badge');
-    if (badgeEl) {
+    if (badgeEl && !isFallback) {
+      badgeEl.className = 'badge badge-safe';
       badgeEl.innerHTML = '<i data-lucide="cloud-check" style="width: 12px; height: 12px; vertical-align: middle;"></i> Cloud Firestore Connected';
     }
 

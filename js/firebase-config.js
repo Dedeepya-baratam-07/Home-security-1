@@ -1,5 +1,5 @@
-﻿/**
- * Home Security App — Firebase Configuration, Auth & Firestore Initialization
+/**
+ * Home Security App — Firebase Configuration & Initialization
  * Web SDK Version: 12.19.0 (Modular CDN)
  * Project ID: homesecurity-75a2e
  */
@@ -16,14 +16,6 @@ import {
   browserLocalPersistence,
   browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC1M-V-F_dgcCFglEn3MXoy7Y8gxrL1TAA",
@@ -35,28 +27,19 @@ const firebaseConfig = {
   measurementId: "G-P06FGT7NQC"
 };
 
-// Initialize Firebase App
+// Initialize Firebase App (single instance)
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication
 const auth = getAuth(app);
 
-// Initialize Cloud Firestore
-const db = getFirestore(app);
-
 // Safe global reference for debugging
-window.__firebase = { app, auth, db, config: firebaseConfig };
+window.__firebase = { app, auth, config: firebaseConfig };
 console.log("Firebase initialized successfully with project:", firebaseConfig.projectId);
 
 export { 
   app, 
   auth,
-  db,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  serverTimestamp,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
