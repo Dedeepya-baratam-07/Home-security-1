@@ -1,6 +1,6 @@
 ﻿/**
  * Home Security App — Resident Profile Controller
- * Connected to Cloud Firestore under users/{uid}
+ * Directly integrated with Cloud Firestore under users/{uid}
  */
 
 import { 
@@ -11,29 +11,34 @@ import {
   setDoc, 
   updateDoc, 
   serverTimestamp, 
-  updateProfile 
+  updateProfile,
+  onAuthStateChanged 
 } from './firebase-config.js';
-import { Auth } from './auth.js';
 
 const ProfilePage = {
   currentUser: null,
   currentProfile: null,
 
   init() {
-    Auth.guardProtectedPage();
+    this.bindProfileForm();
 
-    Auth.onUserReady(async (user) => {
-      if (!user) return;
+    // Direct Firebase Auth listener guarantees immediate & accurate user state
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Not authenticated; redirect to login
+        window.location.href = 'index.html';
+        return;
+      }
+
       this.currentUser = user;
-      await this.loadProfileFromFirestore(user);
-      this.bindProfileForm();
+      await this.loadProfile(user);
     });
   },
 
   /**
-   * Loads or creates the user's profile document from Cloud Firestore: users/{uid}
+   * Loads or auto-initializes the profile from Firestore path: users/{uid}
    */
-  async loadProfileFromFirestore(user) {
+  async loadProfile(user) {
     if (!user) return;
     const uid = user.uid;
     const userDocRef = doc(db, 'users', uid);
@@ -44,9 +49,9 @@ const ProfilePage = {
       if (snap.exists()) {
         this.currentProfile = snap.data();
       } else {
-        // Document does not exist yet; initialize it in Firestore
-        const defaultName = user.displayName || user.email.split('@')[0];
-        const initialProfile = {
+        // Document does not exist yet; create it in Firestore
+        const defaultName = user.displayName || (user.email ? user.email.split('@')[0] : 'Resident');
+        const initialData = {
           uid: uid,
           name: defaultName,
           email: user.email || '',
@@ -58,32 +63,38 @@ const ProfilePage = {
           updatedAt: serverTimestamp()
         };
 
-        await setDoc(userDocRef, initialProfile);
-        this.currentProfile = initialProfile;
+        await setDoc(userDocRef, initialData);
+        this.currentProfile = initialData;
       }
 
       this.populateUI(this.currentProfile, user);
     } catch (err) {
-      console.error('Error loading profile from Firestore:', err);
-      UI.showToast('Could not load profile from Firestore.', 'error');
+      console.error('Firestore Profile Load Error:', err);
 
-      // Fallback display using local cache / auth user
-      const fallback = window.securityStorage?.getCurrentUser() || {};
+      // Gracefully fall back to Firebase Auth user credentials
+      const fallbackName = user.displayName || (user.email ? user.email.split('@')[0] : 'Resident');
       this.populateUI({
-        name: user.displayName || fallback.name || '',
+        uid: uid,
+        name: fallbackName,
         email: user.email || '',
-        phone: fallback.phone || '',
-        address: fallback.address || '',
-        emergencyInfo: fallback.emergencyInfo || ''
+        phone: '',
+        address: '',
+        emergencyInfo: ''
       }, user);
+
+      if (err.message && err.message.includes('API has not been used')) {
+        UI.showToast('Please enable Cloud Firestore in your Firebase Console to sync data.', 'warning', 6000);
+      } else {
+        UI.showToast('Could not load profile from Cloud Firestore.', 'error');
+      }
     }
   },
 
   /**
-   * Populates form inputs and avatar/name indicators
+   * Populates form inputs and dynamic UI elements
    */
   populateUI(profile, user) {
-    const name = profile.name || user.displayName || '';
+    const name = profile.name || user.displayName || (user.email ? user.email.split('@')[0] : '');
     const email = user.email || profile.email || '';
     const phone = profile.phone || '';
     const address = profile.address || '';
@@ -101,23 +112,37 @@ const ProfilePage = {
     if (addressInput) addressInput.value = address;
     if (emergencyInput) emergencyInput.value = emergencyInfo;
 
-    // Update avatar initials
-    const displayName = name || email.split('@')[0] || 'Resident';
-    const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    
+    // Compute display initials
+    const displayName = name || (email ? email.split('@')[0] : 'Resident');
+    const initials = displayName
+      .split(' ')
+      .filter(Boolean)
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase() || 'US';
+
+    // Update Profile Card Avatar & Display Name
     const avatarEl = document.getElementById('profile-avatar-display');
-    if (avatarEl) {
-      avatarEl.textContent = initials || 'US';
-    }
+    if (avatarEl) avatarEl.textContent = initials;
 
     const nameDisplay = document.getElementById('profile-name-display');
-    if (nameDisplay) {
-      nameDisplay.textContent = displayName;
+    if (nameDisplay) nameDisplay.textContent = displayName;
+
+    // Update Top Navigation Header
+    const headerName = document.querySelector('.user-meta .user-name');
+    if (headerName) headerName.textContent = displayName;
+
+    const headerAvatar = document.querySelector('.user-profile-summary .user-avatar, #header-avatar');
+    if (headerAvatar) headerAvatar.textContent = initials;
+
+    // Update Cloud Status Badge
+    const badgeEl = document.getElementById('profile-badge');
+    if (badgeEl) {
+      badgeEl.innerHTML = '<i data-lucide="cloud-check" style="width: 12px; height: 12px; vertical-align: middle;"></i> Cloud Firestore Connected';
     }
 
-    // Sync header profile and storage.js
-    Auth.updateHeaderProfile(user);
-
+    // Keep memory cache updated for storage.js
     if (window.securityStorage) {
       const stored = window.securityStorage.getCurrentUser() || {};
       window.securityStorage.setCurrentUser({
@@ -132,15 +157,18 @@ const ProfilePage = {
       });
     }
 
-    UI.renderIcons();
+    if (window.UI && typeof window.UI.renderIcons === 'function') {
+      window.UI.renderIcons();
+    }
   },
 
   /**
-   * Handles saving updated profile fields to Cloud Firestore
+   * Binds Profile Form submission to Cloud Firestore
    */
   bindProfileForm() {
     const form = document.getElementById('profile-form');
-    if (!form) return;
+    if (!form || form._isBound) return;
+    form._isBound = true;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -164,10 +192,13 @@ const ProfilePage = {
       const userDocRef = doc(db, 'users', uid);
 
       const updatePayload = {
+        uid: uid,
         name: name,
+        email: this.currentUser.email || '',
         phone: phone,
         address: address,
         emergencyInfo: emergencyInfo,
+        profilePicture: '',
         updatedAt: serverTimestamp()
       };
 
@@ -177,55 +208,47 @@ const ProfilePage = {
           submitBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Saving...';
         }
 
-        // 1. Save to Cloud Firestore using updateDoc (with fallback to setDoc merge if needed)
-        try {
-          await updateDoc(userDocRef, updatePayload);
-        } catch (updateErr) {
-          // If document was deleted or missing, recreate it with merge
-          await setDoc(userDocRef, {
-            ...updatePayload,
-            uid: uid,
-            email: this.currentUser.email || '',
-            profilePicture: '',
-            createdAt: serverTimestamp()
-          }, { merge: true });
-        }
+        // 1. Save to Cloud Firestore using setDoc with merge: true
+        await setDoc(userDocRef, updatePayload, { merge: true });
 
-        // 2. Update Firebase Auth displayName if changed
+        // 2. Sync Firebase Auth displayName if changed
         if (name !== this.currentUser.displayName) {
           try {
             await updateProfile(this.currentUser, { displayName: name });
-          } catch (profileErr) {
-            console.warn('Notice: Firebase Auth displayName sync:', profileErr);
+          } catch (authErr) {
+            console.warn('Firebase Auth displayName update warning:', authErr);
           }
         }
 
-        // 3. Update memory state & UI
+        // 3. Update active in-memory profile and UI immediately
         this.currentProfile = {
           ...this.currentProfile,
-          ...updatePayload,
-          email: this.currentUser.email
+          ...updatePayload
         };
 
         this.populateUI(this.currentProfile, this.currentUser);
-
-        UI.showToast('Profile information saved to Cloud Firestore!', 'success');
+        UI.showToast('Profile information saved successfully to Cloud Firestore!', 'success');
       } catch (err) {
         console.error('Error saving profile to Firestore:', err);
-        UI.showToast(err.message || 'Failed to update profile in Cloud Firestore.', 'error');
+        UI.showToast(err.message || 'Failed to save profile details to Firestore.', 'error');
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i data-lucide="save"></i> Save Profile Details';
-          UI.renderIcons();
+          if (window.UI && typeof window.UI.renderIcons === 'function') {
+            window.UI.renderIcons();
+          }
         }
       }
     });
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+// Guarantee execution regardless of script loading timing
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => ProfilePage.init());
+} else {
   ProfilePage.init();
-});
+}
 
 export { ProfilePage };
